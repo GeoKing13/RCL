@@ -17,17 +17,40 @@ export async function fetchArticles() {
     return response.data.stories;
 }
 
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.toLocaleString('pt-BR', { month: 'long' });
+    const year = date.getFullYear();
+    const time = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const capitalizedMonth = month.charAt(0).toUpperCase() + month.slice(1);
+
+    return `${day} de ${capitalizedMonth} de ${year} - ${time}`;
+}
+
 const articles = await fetchArticles();
 ---
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
-<!-- --><div class="carousel-wrapper">
+<div class="carousel-wrapper">
     <div class="swiper-container">
         <div class="swiper-wrapper">
             {articles.map(article => (
                 <div class="swiper-slide image-container" key={article.uuid}>
                     <img src={article.content.Imagem.filename} alt={article.content.Imagem.alt} />
+                    <div class="image-overlay"></div>
+                    <div class="text-overlay">
+                        <div id="article-title">
+                            <h1>{article.content.title}</h1>
+                        </div>
+                        <div id="article-date">
+                            <p>{formatDate(article.content.date)}</p>
+                        </div>
+                        <div  id="article-description">
+                            <p>{article.content.description}</p>
+                        </div>
+                    </div>
                 </div>
             ))}
         </div>
@@ -36,6 +59,35 @@ const articles = await fetchArticles();
 </div>
 
 <style>
+
+    #article-description{
+        margin-top: 30px;
+        font-size: 18px;
+    }
+
+    #article-date{
+        font-size: 12px;
+    }
+
+    #article-title {
+        font-size: 35px;
+        text-transform: uppercase;
+    }
+
+    .image-overlay {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background-color: rgba(23, 23, 109, 0.5);
+        height: 75%;
+        clip-path: polygon(100% 0, 0 100%, 100% 100%);
+        pointer-events: none;
+    }
+
+    .swiper-wrapper {
+        display: contents;
+    }
+
     .carousel-wrapper {
         position: relative;
         width: 100%;
@@ -56,6 +108,7 @@ const articles = await fetchArticles();
         justify-content: center;
         align-items: center;
         flex-direction: column;
+        position: relative;
     }
 
     .image-container {
@@ -77,13 +130,32 @@ const articles = await fetchArticles();
         bottom: 0;
         left: 0;
         width: 100%;
-        height: 2500px; /* Ajuste conforme necessário */
-        background: linear-gradient(
-            to top,
-            rgba(0, 0, 102, 1) 10%,
-            rgba(0, 0, 102, 0.1) 35%
-        );
+        height: 80%;
+        background: linear-gradient(180deg,
+                    rgba(13,10,29,0),
+                    rgba(13,10,29,.37) 10%,
+                    rgba(13,10,29,.55) 20%,
+                    rgba(13,10,29,.75) 40%,
+                    rgba(13,10,29,.9) 
+                    60%,
+                    #0d0a1d 80%,
+                    #0d0a1d);
         pointer-events: none;
+    }
+
+    .text-overlay {
+        position: absolute;
+        left: 15%;
+        bottom: 28%;
+        color: white;
+        text-align: left;
+        z-index: 10;
+        pointer-events: none;
+        max-width: 900px;
+    }
+
+    .text-overlay p {
+        margin: 0 0 0;
     }
 
     .swiper-pagination-bullet {
@@ -92,7 +164,7 @@ const articles = await fetchArticles();
         text-align: center;
         line-height: 20px;
         font-size: 12px;
-        color: #000;
+        color: #000066;
         opacity: 1;
         background: rgba(0, 0, 0, 0.2);
     }
@@ -112,8 +184,6 @@ const articles = await fetchArticles();
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-    import Swiper from 'swiper';
-
     document.addEventListener('DOMContentLoaded', function() {
         var swiper = new Swiper(".swiper-container", {
             pagination: {

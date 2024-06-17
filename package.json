@@ -16,6 +16,7 @@
     "@storyblok/astro": "^4.0.5",
     "astro": "^4.10.2",
     "axios": "^1.7.2",
+    "date-fns": "^3.6.0",
     "swiper": "^11.1.4",
     "tailwindcss": "^3.4.4",
     "vite": "^5.2.13"
