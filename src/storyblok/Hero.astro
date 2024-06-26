@@ -2,7 +2,6 @@
 import axios from "axios";
 import { storyblokEditable } from "@storyblok/astro";
 import "swiper/css";
-import Article from "./Article.astro";
 
 const { blok } = Astro.props;
 
@@ -53,8 +52,7 @@ function formatDate(dateString) {
         // If we need pagination
         pagination: {
             el: ".swiper-pagination",
-            dynamicBullets: true,
-            clickable: true,
+            clickable: true
         },
 
         // Navigation arrows
