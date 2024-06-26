@@ -1,79 +1,127 @@
 ---
 import axios from "axios";
-import Swiper, { Pagination } from 'swiper';
+import { storyblokEditable } from "@storyblok/astro";
+import "swiper/css";
+import Article from "./Article.astro";
+
+const { blok } = Astro.props;
 
 export async function fetchArticles() {
-    const response = await axios.get(
-        "https://api.storyblok.com/v2/cdn/stories/",
-        {
-            params: {
-                version: "draft",
-                token: "ejy8ZUEesrxQrdd351UvRQtt",
-                "filter_query[spotlight][is]": "true",
+    try {
+        const response = await axios.get(
+            "https://api.storyblok.com/v2/cdn/stories/",
+            {
+                params: {
+                    version: "draft",
+                    token: "ejy8ZUEesrxQrdd351UvRQtt",
+                    "filter_query[spotlight][is]": "true",
+                },
             },
-        },
-    );
-
-    return response.data.stories;
+        );
+        return response.data.stories;
+    } catch (error) {
+        return [];
+    }
 }
+
+const articles = await fetchArticles();
 
 function formatDate(dateString) {
     const date = new Date(dateString);
     const day = date.getDate();
-    const month = date.toLocaleString('pt-BR', { month: 'long' });
+    const month = date.toLocaleString("pt-BR", { month: "long" });
     const year = date.getFullYear();
-    const time = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const time = date.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+    });
     const capitalizedMonth = month.charAt(0).toUpperCase() + month.slice(1);
 
     return `${day} de ${capitalizedMonth} de ${year} - ${time}`;
 }
-
-const articles = await fetchArticles();
 ---
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<script>
+    import Swiper from "swiper/bundle";
+    import "swiper/css/bundle";
+    import { Navigation, Pagination } from "swiper/modules";
 
-<div class="carousel-wrapper">
-    <div class="swiper-container">
-        <div class="swiper-wrapper">
-            {articles.map(article => (
-                <div class="swiper-slide image-container" key={article.uuid}>
-                    <img src={article.content.Imagem.filename} alt={article.content.Imagem.alt} />
-                    <div class="image-overlay"></div>
-                    <div class="text-overlay">
-                        <div id="article-title">
-                            <h1>{article.content.title}</h1>
-                        </div>
-                        <div id="article-date">
-                            <p>{formatDate(article.content.date)}</p>
-                        </div>
-                        <div  id="article-description">
-                            <p>{article.content.description}</p>
+    const swiper = new Swiper(".swiper", {
+        modules: [Navigation, Pagination],
+        loop: true,
+
+        // If we need pagination
+        pagination: {
+            el: ".swiper-pagination",
+            dynamicBullets: true,
+            clickable: true,
+        },
+
+        // Navigation arrows
+        navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+        },
+
+        // And if we need scrollbar
+        scrollbar: {
+            el: ".swiper-scrollbar",
+        },
+    });
+</script>
+
+<div class="swiper" {...storyblokEditable(blok)}>
+    <div class="swiper-wrapper">
+        {
+            articles.map((article) => (
+                <div class="swiper-slide">
+                    <div class="image-container" key={article.uuid}>
+                        <img
+                            src={article.content.Imagem.filename}
+                            alt={article.content.Imagem.alt}
+                        />
+                        <div class="image-overlay" />
+                        <div class="text-overlay">
+                            <div id="article-title">
+                                <h1>{article.content.title}</h1>
+                            </div>
+                            <div id="article-date">
+                                <p>{formatDate(article.content.date)}</p>
+                            </div>
+                            <div id="article-description">
+                                <p>{article.content.description}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            ))}
-        </div>
-        <div class="swiper-pagination"></div>
+            ))
+        }
     </div>
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-pagination"></div>
 </div>
 
 <style>
+    :root {
+        --swiper-pagination-color: white;
+        --swiper-theme-color: red !important;
+        --swiper-pagination-bullet-width: 15px;
+        --swiper-pagination-bullet-height:15px;
+        --swiper-pagination-bullet-inactive-color: white
+    }
 
-    #article-description{
+    #article-description {
         margin-top: 30px;
         font-size: 18px;
     }
-
-    #article-date{
+    #article-date {
         font-size: 12px;
     }
-
     #article-title {
         font-size: 35px;
         text-transform: uppercase;
     }
-
     .image-overlay {
         position: absolute;
         bottom: 0;
@@ -84,46 +132,24 @@ const articles = await fetchArticles();
         pointer-events: none;
     }
 
-    .swiper-wrapper {
-        display: contents;
-    }
-
     .carousel-wrapper {
         position: relative;
         width: 100%;
         height: 1000px;
         overflow: hidden;
     }
-
-    .swiper-container {
-        width: 100%;
-        height: 100%;
-    }
-
-    .swiper-slide {
-        text-align: center;
-        font-size: 18px;
-        background: #fff;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        position: relative;
-    }
-
     .image-container {
         position: relative;
         display: inline-block;
         width: 100%;
+        height: 100%;
     }
-
     .image-container img {
         display: block;
         width: 100%;
         max-height: 920px;
         object-fit: cover;
     }
-
     .image-container::after {
         content: "";
         position: absolute;
@@ -131,68 +157,119 @@ const articles = await fetchArticles();
         left: 0;
         width: 100%;
         height: 80%;
-        background: linear-gradient(180deg,
-                    rgba(13,10,29,0),
-                    rgba(13,10,29,.37) 10%,
-                    rgba(13,10,29,.55) 20%,
-                    rgba(13,10,29,.75) 40%,
-                    rgba(13,10,29,.9) 
-                    60%,
-                    #0d0a1d 80%,
-                    #0d0a1d);
+        background: linear-gradient(
+            180deg,
+            rgba(13, 10, 29, 0),
+            rgba(13, 10, 29, 0.37) 10%,
+            rgba(13, 10, 29, 0.55) 20%,
+            rgba(13, 10, 29, 0.75) 40%,
+            rgba(13, 10, 29, 0.9) 60%,
+            #0d0a1d 80%,
+            #0d0a1d
+        );
         pointer-events: none;
     }
-
     .text-overlay {
         position: absolute;
         left: 15%;
-        bottom: 28%;
+        bottom: 30%;
         color: white;
         text-align: left;
-        z-index: 10;
+        z-index: 1;
         pointer-events: none;
         max-width: 900px;
     }
-
     .text-overlay p {
         margin: 0 0 0;
+    }
+
+    .swiper-pagination-bullet-active{
+        width: 20px;
+        height: 20px;
     }
 
     .swiper-pagination-bullet {
         width: 20px;
         height: 20px;
-        text-align: center;
-        line-height: 20px;
-        font-size: 12px;
-        color: #000066;
-        opacity: 1;
-        background: rgba(0, 0, 0, 0.2);
     }
-
-    .swiper-pagination-bullet-active {
-        color: #fff;
-        background: #007aff;
-    }
-
     .swiper-pagination {
         position: absolute;
         bottom: 10px;
         width: 100%;
         text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .swiper {
+        width: 100%;
+        height: 1000px;
+    }
+
+    .swiper-container {
+        position: relative;
+        height: 600px;
+    }
+    .swiper.main {
+        width: 100%;
+        height: 80%;
+    }
+    .swiper.thumbs {
+        width: 100%;
+        height: 20%;
+        box-sizing: border-box;
+        padding: 10px 0;
+    }
+    .swiper-slide {
+        text-align: center;
+        font-size: 18px;
+        background: #fff;
+        justify-content: center;
+        align-items: center;
+        background-size: cover;
+        background-position: center;
+    }
+    .swiper-wrapper {
+        display: contents;
+    }
+    .thumbs .swiper-slide {
+        width: 25%;
+        height: 100%;
+        opacity: 0.4;
+    }
+
+    .thumbs .swiper-slide-thumb-active {
+        opacity: 1;
+    }
+
+    .swiper-slide img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    main {
+        margin: auto;
+        padding: 1.5rem;
+        max-width: 60ch;
+    }
+    h1 {
+        font-size: 40px;
+        margin: 0;
+    }
+    .text-gradient {
+        background-image: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-size: 400%;
+        background-position: 0%;
+    }
+    .instructions {
+        line-height: 1.6;
+        margin: 1rem 0;
+        border: 1px solid rgba(var(--accent), 25%);
+        background-color: white;
+        padding: 1rem;
+        border-radius: 0.4rem;
     }
 </style>
-
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var swiper = new Swiper(".swiper-container", {
-            pagination: {
-                el: ".swiper-pagination",
-                clickable: true,
-                renderBullet: function (index, className) {
-                    return '<span class="' + className + '">' + (index + 1) + "</span>";
-                },
-            },
-        });
-    });
-</script>

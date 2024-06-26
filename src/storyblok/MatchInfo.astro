@@ -1,0 +1,13 @@
+---
+import { storyblokEditable, renderRichText } from '@storyblok/astro';
+const { blok } = Astro.props;
+---
+
+<div {...storyblokEditable(blok)}>
+  <h1>Match Day Component</h1>
+  <p>{blok.Tournament}</p>
+  <p>{blok.Local}</p>
+  <p>{blok.Date}</p>
+  <img src={blok.HomeTeam.filename} alt={blok.HomeTeam.alt} />
+  <img src={blok.AwayTeam.filename} alt={blok.AwayTeam.alt} />
+</div>

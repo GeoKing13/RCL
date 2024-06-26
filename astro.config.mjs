@@ -17,7 +17,9 @@ export default defineConfig({
       grid: 'storyblok/Grid',
       teaser: 'storyblok/Teaser',
       navbar: 'storyblok/Navbar',
-      hero: 'storyblok/Hero'
+      hero: 'storyblok/Hero',
+      article: 'storyblok/Article',
+      matchInfo: 'storyblok/MatchInfo'
   },
   }), tailwind()],
   vite: {

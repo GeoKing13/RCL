@@ -14,7 +14,7 @@
     "@fortawesome/fontawesome-svg-core": "^6.5.2",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@storyblok/astro": "^4.0.5",
-    "astro": "^4.10.2",
+    "astro": "^4.11.1",
     "axios": "^1.7.2",
     "date-fns": "^3.6.0",
     "swiper": "^11.1.4",
